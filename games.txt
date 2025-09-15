@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ghibli Movie Guess Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #fceabb;
+      color: #333;
+      padding: 20px;
+    }
+    img {
+      width: 300px;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1em;
+      margin: 5px;
+      cursor: pointer;
+    }
+    #feedback {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎬 Ghibli Movie Guess Game 🎬</h1>
+  <p>Look at the image and choose the correct movie title:</p>
+  <img id="movie-img" src="" alt="Ghibli Movie">
+  <br>
+  <div id="choices">
+    <button id="choiceA" onclick="checkGuess('A')">A</button>
+    <button id="choiceB" onclick="checkGuess('B')">B</button>
+    <button id="choiceC" onclick="checkGuess('C')">C</button>
+  </div>
+  <p id="feedback"></p>
+  <button onclick="nextMovie()">Next Movie</button>
+
+  <script>
+    const movies = [
+      {title: "My Neighbor Totoro", img: "https://upload.wikimedia.org/wikipedia/en/0/02/My_Neighbor_Totoro_-_Tonari_no_Totoro_%28Movie_Poster%29.jpg"},
+      {title: "Spirited Away", img: "https://upload.wikimedia.org/wikipedia/en/3/30/Spirited_Away_poster.JPG"},
+      {title: "Howl's Moving Castle", img: "https://upload.wikimedia.org/wikipedia/en/a/a0/Howls-moving-castleposter.jpg"},
+      {title: "Princess Mononoke", img: "https://upload.wikimedia.org/wikipedia/en/0/03/Princess_Mononoke_Japanese_Poster.jpg"},
+      {title: "Kiki's Delivery Service", img: "https://upload.wikimedia.org/wikipedia/en/6/6f/Kiki%27s_Delivery_Service.jpg"}
+    ];
+
+    let currentIndex = 0;
+    let options = [];
+
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+
+    function showMovie() {
+      const movie = movies[currentIndex];
+      document.getElementById("movie-img").src = movie.img;
+      document.getElementById("feedback").textContent = "";
+
+      // Generate 3 options including correct answer
+      const wrongChoices = movies.filter(m => m.title !== movie.title);
+      options = shuffle([movie.title, wrongChoices[0].title, wrongChoices[1].title]);
+      
+      document.getElementById("choiceA").textContent = "A: " + options[0];
+      document.getElementById("choiceB").textContent = "B: " + options[1];
+      document.getElementById("choiceC").textContent = "C: " + options[2];
+    }
+
+    function checkGuess(choice) {
+      const userGuess = options[{"A":0,"B":1,"C":2}[choice]];
+      if (userGuess === movies[currentIndex].title) {
+        document.getElementById("feedback").textContent = "✅ Correct! Well done!";
+      } else {
+        document.getElementById("feedback").textContent = `❌ Incorrect! The correct title is: ${movies[currentIndex].title}`;
+      }
+    }
+
+    function nextMovie() {
+      currentIndex = (currentIndex + 1) % movies.length;
+      showMovie();
+    }
+
+    // Initialize first movie
+    showMovie();
+  </script>
+</body>
+</html>

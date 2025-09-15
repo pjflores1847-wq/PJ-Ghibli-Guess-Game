@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🎬 Ghibli Movie Guess Game</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background: linear-gradient(135deg, #ffecd2, #fcb69f);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #ff6f91;
+      margin-bottom: 10px;
+      text-shadow: 1px 1px 3px #fff;
+      text-align: center;
+    }
+
+    #game-box {
+      background: rgba(255,255,255,0.85);
+      border-radius: 20px;
+      padding: 20px;
+      width: 400px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      position: relative;
+    }
+
+    #movie-img {
+      width: 300px;
+      height: 400px;
+      object-fit: cover;
+      border-radius: 15px;
+      margin-bottom: 15px;
+      border: 3px solid #ff6f91;
+      transition: 0.3s;
+    }
+
+    .choice-btn {
+      display: block;
+      width: 80%;
+      margin: 8px auto;
+      padding: 10px;
+      border-radius: 15px;
+      border: none;
+      background: #ff9f1c;
+      color: white;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .choice-btn:hover {
+      background: #ff6f91;
+    }
+
+    #score {
+      margin-top: 15px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    #next-btn, #restart-btn {
+      margin-top: 10px;
+      padding: 8px 15px;
+      border-radius: 12px;
+      background: #2ec4b6;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    #next-btn:hover, #restart-btn:hover {
+      background: #128c7e;
+    }
+
+    #answer-box {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 15px 20px;
+      border-radius: 15px;
+      font-weight: bold;
+      font-size: 1.1em;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.5s, top 0.5s;
+      color: white;
+    }
+
+    #answer-box.correct { background: #4caf50; }
+    #answer-box.wrong { background: #f44336; }
+  </style>
+</head>
+<body>
+  <h1>🎬 Ghibli Movie Guess Game 🎬</h1>
+  <div id="game-box">
+    <div id="answer-box"></div>
+    <img id="movie-img" src="" alt="Ghibli Movie">
+    <div id="choices">
+      <button class="choice-btn" id="choiceA"></button>
+      <button class="choice-btn" id="choiceB"></button>
+      <button class="choice-btn" id="choiceC"></button>
+    </div>
+    <div id="score">Score: 0</div>
+    <button id="next-btn" onclick="nextMovie()">Next Movie</button>
+    <button id="restart-btn" onclick="restartGame()" style="display:none;">Play Again</button>
+  </div>
+
+  <script>
+    const movies = [
+      {title: "My Neighbor Totoro", img: "https://i.postimg.cc/SnchftLB/totoro-jpg.jpg"},
+      {title: "Spirited Away", img: "https://i.postimg.cc/QH2D5r7g/spirited-away-jpg.jpg"},
+      {title: "Howl's Moving Castle", img: "https://i.postimg.cc/tZkRtmbq/howl-jpg.jpg"},
+      {title: "Kiki's Delivery Service", img: "https://i.postimg.cc/grMkx544/kiki-jpg.jpg"},
+      {title: "Princess Mononoke", img: "https://i.postimg.cc/YhZr3W5W/mononoke-jpg.jpg"},
+      {title: "Ponyo", img: "https://i.postimg.cc/K4sxGTvH/ponyo-jpg.jpg"},
+      {title: "The Wind Rises", img: "https://i.postimg.cc/wy48BKHm/wind-rises-jpg.jpg"},
+      {title: "Castle in the Sky", img: "https://i.postimg.cc/943fW71h/castle-sky-jpg.jpg"},
+      {title: "The Tale of the Princess Kaguya", img: "https://i.postimg.cc/dZ0sWmQ8/kaguya-jpg.jpg"},
+      {title: "The Cat Returns", img: "https://i.postimg.cc/CBSL8pWr/cat-returns-jpg.jpg"},
+      {title: "From Up on Poppy Hill", img: "https://i.postimg.cc/SjKmbdq9/poppy-hill-jpg.jpg"},
+      {title: "Pom Poko", img: "https://i.postimg.cc/BPt35SNp/pom-poko-jpg.jpg"},
+      {title: "Whisper of the Heart", img: "https://i.postimg.cc/WDncQFHS/whisper-heart-jpg.jpg"},
+      {title: "Tales from Earthsea", img: "https://i.postimg.cc/hJ9tht37/earthsea-jpg.jpg"},
+      {title: "Only Yesterday", img: "https://i.postimg.cc/xJ6YbJGq/only-yesterday-jpg.jpg"},
+      {title: "My Neighbors the Yamadas", img: "https://i.postimg.cc/34xQ7rMh/yamadas-jpg.jpg"},
+      {title: "Arrietty", img: "https://i.postimg.cc/QB5H5bVC/arrietty-jpg.jpg"},
+      {title: "When Marnie Was There", img: "https://i.postimg.cc/hff4Tr5n/marnie-jpg.jpg"},
+      {title: "Ocean Waves", img: "https://i.postimg.cc/47fsdb9r/ocean-waves-jpg.jpg"},
+      {title: "On Your Mark", img: "https://i.postimg.cc/jWQRtkLH/on-your-mark-jpg.jpg"},
+      {title: "The Red Turtle", img: "https://i.postimg.cc/dLkvL0ht/red-turtle-jpg.jpg"},
+      {title: "Ni no Kuni", img: "https://i.postimg.cc/kVdnrdXM/ni-no-kuni-jpg.jpg"}
+    ];
+
+    let currentMovie = 0;
+    let score = 0;
+
+    const movieImg = document.getElementById('movie-img');
+    const choiceA = document.getElementById('choiceA');
+    const choiceB = document.getElementById('choiceB');
+    const choiceC = document.getElementById('choiceC');
+    const scoreBox = document.getElementById('score');
+    const answerBox = document.getElementById('answer-box');
+    const nextBtn = document.getElementById('next-btn');
+    const restartBtn = document.getElementById('restart-btn');
+
+    function shuffleChoices(correct) {
+      let choices = [correct];
+      while (choices.length < 3) {
+        let randomMovie = movies[Math.floor(Math.random() * movies.length)].title;
+        if (!choices.includes(randomMovie)) choices.push(randomMovie);
+      }
+      return choices.sort(() => Math.random() - 0.5);
+    }
+
+    function showAnswerMessage(text, isCorrect) {
+      answerBox.textContent = text;
+      answerBox.className = isCorrect ? "correct" : "wrong";
+      answerBox.style.display = "block";
+      answerBox.style.top = "10px";
+      answerBox.style.opacity = "1";
+
+      setTimeout(() => {
+        answerBox.style.opacity = "0";
+        answerBox.style.top = "-50px";
+        setTimeout(() => answerBox.style.display = "none", 500);
+      }, 1500);
+    }
+
+    function loadMovie(index) {
+      let movie = movies[index];
+      movieImg.src = movie.img;
+      let choices = shuffleChoices(movie.title);
+
+      choiceA.textContent = "A. " + choices[0];
+      choiceB.textContent = "B. " + choices[1];
+      choiceC.textContent = "C. " + choices[2];
+
+      [choiceA, choiceB, choiceC].forEach(btn => {
+        btn.onclick = () => checkAnswer(btn.textContent.slice(3), movie.title);
+      });
+    }
+
+    function checkAnswer(selected, correct) {
+      if (selected === correct) {
+        score++;
+        showAnswerMessage("✅ Correct! 🎉", true);
+      } else {
+        showAnswerMessage(`❌ Wrong! The correct answer: ${correct}`, false);
+      }
+      scoreBox.textContent = "Score: " + score;
+    }
+
+    function nextMovie() {
+      currentMovie++;
+      if (currentMovie >= movies.length) {
+        // Game over
+        movieImg.style.display = "none";
+        document.getElementById("choices").style.display = "none";
+        nextBtn.style.display = "none";
+        scoreBox.textContent = `🎉 Game Over! Your final score: ${score} / ${movies.length}`;
+        restartBtn.style.display = "block";
+      } else {
+        loadMovie(currentMovie);
+      }
+    }
+
+    function restartGame() {
+      currentMovie = 0;
+      score = 0;
+      movieImg.style.display = "block";
+      document.getElementById("choices").style.display = "block";
+      nextBtn.style.display = "block";
+      restartBtn.style.display = "none";
+      scoreBox.textContent = "Score: 0";
+      loadMovie(currentMovie);
+    }
+
+    window.onload = () => {
+      loadMovie(currentMovie);
+    };
+  </script>
+</body>
+</html>
